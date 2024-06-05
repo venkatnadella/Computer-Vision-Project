@@ -118,6 +118,19 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE*****
+        p_scores = probs
+        p_scores[np.arange(X.shape[0]), y] -= 1
+        p_scores /= X.shape[0]
+
+        h_layer = np.maximum(0, X.dot(W1) + b1)
+        grads['W2'] = h_layer.T.dot(p_scores) + reg * W2
+        grads['b2'] = np.sum(p_scores, axis=0)
+
+        der_hidden = p_scores.dot(W2.T)
+        der_hidden[h_layer <= 0] = 0
+
+        grads['W1'] = X.T.dot(der_hidden) + reg * W1
+        grads['b1'] = np.sum(der_hidden, axis=0)
 
         pass
 
