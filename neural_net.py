@@ -72,7 +72,7 @@ class TwoLayerNet(object):
         N, D = X.shape
 
         # Compute the forward pass
-        scores = None
+        scores = scores = np.maximum(0, X.dot(W1) + b1).dot(W2) + b2
         #############################################################################
         # TODO: Perform the forward pass, computing the class scores for the input. #
         # Store the result in the scores variable, which should be an array of      #
@@ -97,6 +97,14 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE*****
+        shifted_logits = scores - np.max(scores, axis=1, keepdims=True)
+        log_probs = shifted_logits - np.log(np.sum(np.exp(shifted_logits), axis=1, keepdims=True))
+        probs = np.exp(log_probs)
+        correct_logprobs = -log_probs[np.arange(X.shape[0]), y]
+        data_loss = np.mean(correct_logprobs)
+        reg_loss = 0.5 * reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
+        loss = data_loss + reg_loss
+
 
         pass
 
