@@ -170,12 +170,19 @@ class TwoLayerNet(object):
         for it in range(num_iters):
             X_batch = None
             y_batch = None
+            b_nums = np.random.choice(num_train, batch_size, replace=False)
+            X_batch = X[b_nums]
+            y_batch = y[b_nums]
 
             #########################################################################
             # TODO: Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
             # *****START OF YOUR CODE*****
+            
+            # Compute loss and gradients using the current minibatch
+            loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
+            loss_history.append(loss)
 
             pass
 
