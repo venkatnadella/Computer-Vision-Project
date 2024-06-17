@@ -168,8 +168,6 @@ class TwoLayerNet(object):
         val_acc_history = []
 
         for it in range(num_iters):
-            X_batch = None
-            y_batch = None
             b_nums = np.random.choice(num_train, batch_size, replace=False)
             X_batch = X[b_nums]
             y_batch = y[b_nums]
@@ -199,6 +197,9 @@ class TwoLayerNet(object):
             # stored in the grads dictionary defined above.                         #
             #########################################################################
             # *****START OF YOUR CODE*****
+
+            for p_name in self.params:
+                self.params[p_name] -= learning_rate * grads[p_name]
 
             pass
 
