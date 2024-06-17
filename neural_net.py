@@ -246,6 +246,17 @@ class TwoLayerNet(object):
         ###########################################################################
         # *****START OF YOUR CODE*****
 
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+
+        # Computing the forward pass to get the scores
+        hidden_layer = np.maximum(0, X.dot(W1) + b1)  # ReLU activation
+        scores = hidden_layer.dot(W2) + b2
+
+        # Predicting the class with the highest score
+        y_pred = np.argmax(scores, axis=1)
+
+
         pass
 
         # *****END OF YOUR CODE*****
