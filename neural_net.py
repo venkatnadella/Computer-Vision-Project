@@ -168,7 +168,8 @@ class TwoLayerNet(object):
         val_acc_history = []
 
         for it in range(num_iters):
-            b_nums = np.random.choice(num_train, batch_size, replace=False)
+            batch_actual_size = min(batch_size,num_train)
+            b_nums = np.random.choice(num_train, batch_actual_size, replace=False)
             X_batch = X[b_nums]
             y_batch = y[b_nums]
 
