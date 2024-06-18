@@ -72,7 +72,7 @@ class TwoLayerNet(object):
         N, D = X.shape
 
         # Compute the forward pass
-        scores = None
+        scores = scores = np.maximum(0, X.dot(W1) + b1).dot(W2) + b2
         #############################################################################
         # TODO: Perform the forward pass, computing the class scores for the input. #
         # Store the result in the scores variable, which should be an array of      #
@@ -97,6 +97,14 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE*****
+        shifted_logits = scores - np.max(scores, axis=1, keepdims=True)
+        log_probs = shifted_logits - np.log(np.sum(np.exp(shifted_logits), axis=1, keepdims=True))
+        probs = np.exp(log_probs)
+        correct_logprobs = -log_probs[np.arange(X.shape[0]), y]
+        data_loss = np.mean(correct_logprobs)
+        reg_loss = 0.5 * reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
+        loss = data_loss + reg_loss
+
 
         pass
 
@@ -110,6 +118,19 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE*****
+        p_scores = probs
+        p_scores[np.arange(X.shape[0]), y] -= 1
+        p_scores /= X.shape[0]
+
+        h_layer = np.maximum(0, X.dot(W1) + b1)
+        grads['W2'] = h_layer.T.dot(p_scores) + reg * W2
+        grads['b2'] = np.sum(p_scores, axis=0)
+
+        der_hidden = p_scores.dot(W2.T)
+        der_hidden[h_layer <= 0] = 0
+
+        grads['W1'] = X.T.dot(der_hidden) + reg * W1
+        grads['b1'] = np.sum(der_hidden, axis=0)
 
         pass
 
@@ -147,14 +168,20 @@ class TwoLayerNet(object):
         val_acc_history = []
 
         for it in range(num_iters):
-            X_batch = None
-            y_batch = None
+            batch_actual_size = min(batch_size,num_train)
+            b_nums = np.random.choice(num_train, batch_actual_size, replace=False)
+            X_batch = X[b_nums]
+            y_batch = y[b_nums]
 
             #########################################################################
             # TODO: Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
             # *****START OF YOUR CODE*****
+            
+            # Compute loss and gradients using the current minibatch
+            loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
+            loss_history.append(loss)
 
             pass
 
@@ -171,6 +198,9 @@ class TwoLayerNet(object):
             # stored in the grads dictionary defined above.                         #
             #########################################################################
             # *****START OF YOUR CODE*****
+
+            for p_name in self.params:
+                self.params[p_name] -= learning_rate * grads[p_name]
 
             pass
 
@@ -217,6 +247,17 @@ class TwoLayerNet(object):
         # TODO: Implement this function; it should be VERY simple!                #
         ###########################################################################
         # *****START OF YOUR CODE*****
+
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+
+        # Computing the forward pass to get the scores
+        hidden_layer = np.maximum(0, X.dot(W1) + b1)  # ReLU activation
+        scores = hidden_layer.dot(W2) + b2
+
+        # Predicting the class with the highest score
+        y_pred = np.argmax(scores, axis=1)
+
 
         pass
 
